@@ -79,7 +79,7 @@ int accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen);
 
 服务器端（server）是能够受理连接请求的程序。下面构建服务端以验证之前提到的函数调用过程，该服务器端收到连接请求后向请求者返回`Hello World!`答复。除各种函数的调用顺序外，我们还未涉及任何实际编程。因此，阅读代码时请重点关注套接字相关的函数调用过程，不必理解全过程。
 
-服务器端代码请参见：[hello_server.c](ch01/hello_server.c)
+服务器端代码请参见：[hello_server.c](hello_server.c)
 
 **客户端**：
 
@@ -88,7 +88,7 @@ int accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen);
 1. 调用 socket 函数 和 connect 函数
 2. 与服务端共同运行以收发字符串数据
 
-客户端代码请参见：[hello_client.c](ch01/hello_client.c)
+客户端代码请参见：[hello_client.c](hello_client.c)
 
 **编译**：
 
@@ -181,7 +181,7 @@ nbytes : 要传输数据的字节数
 
 创建新文件并保存数据：
 
-代码见：[low_open.c](ch01/low_open.c)
+代码见：[low_open.c](low_open.c)
 
 编译运行：
 
@@ -209,7 +209,7 @@ nbytes : 要接收数据的最大字节数
 
 下面示例通过 read() 函数读取 data.txt 中保存的数据。
 
-代码见：[low_read.c](ch01/low_read.c)
+代码见：[low_read.c](low_read.c)
 
 编译运行：
 
@@ -249,12 +249,135 @@ file descriptor 3: 16
 ```
 
 ### 1.3 基于 Windows 平台的实现
+在winsock基础上开发网络程序，需要做如下准备：
+1. 导入头文件windock2.h
+2. 链接ws2_32.lib库
 
-暂略
+> 使用Clion在windows平台进行开发时，标准库中已经带有windock2.h头文件  
 
+**Winsock初始化**
+```c
+#include <winsock2.h>
+int WSAStasrtup(WORD mVersionRequested, LPWSADATA lpwSAData);
+/*
+成功时返回0，失败时返回非零的错误代码值
+mVersionRequested : 程序员要用的Winsock版本信息
+lpwSAData : WSADATA结构体变量的地址值
+*/
+```
+> mVersionRequested 中高8位为副版本号，低8位为主版本号，能够借助MAKEWORD宏函数创建WORD型版本信息。  
+> 例如：```MAKEWORD(1, 2);``` : 主版本为1，副版本为2，返回Ox0201。  
+> LPWSADATA传递WSADATA变量地址，相应参数填充已初始化的库信息。
+
+**WSAStasrtup函数调用过程**
+```c
+int main(int argc, char* argv[]){
+    WSADATA wsaData;
+    ....
+    if(WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
+        ErrorHanding("WSAStartup() error!");
+    ....
+    return 0;
+    
+}
+```
+
+**注销库**
+```c
+#include <winsock2.h>
+int WSACleanup(void);
+/*
+成功时返回0，失败时返回SOCKET_ERROR
+*/
+```
 ### 1.4 基于 Windows 的套接字相关函数及示例
+#### 1.4.1 基于Windows的套接字相关函数
 
-暂略
+```c
+#include <winsock2.h>
+
+SOCKET socket(int af, int type, int protocol);
+/*
+成功时返回套接字句柄，失败时返回INVALID_SOCKET
+*/
+```
+> 函数功能和Linux下的socket函数相同，都是创建一个socket套接字
+---
+```c
+#include <winsock2.h>
+
+int bind(SOCKET s, const struct sockaddr* name, int namelen);
+/*
+成功时返回0，失败时返回SOCKET_ERROR
+*/
+```
+> 函数功能和Linux下的bind函数相同，为套接字分配IP地址和端口号
+---
+```c
+#include <winsock2.h>
+
+int listen(SOCKET s, int backlog);
+/*
+成功时返回0，失败时返回SOCKET_ERROR
+*/
+```
+> 函数功能和Linux下的listen函数相同，使套接字可接收客户端连接
+---
+```c
+#include <winsock2.h>
+
+int accept(SOCKET s, struct sockaddr* addr, int* addrlen);
+/*
+成功时返回套接字句柄，失败时返回INVALID_SOCKET
+*/
+```
+> 函数功能和Linux下的accept函数相同，调用其受理客户端连接
+---
+```c
+#include <winsock2.h>
+
+int connect(SOCKET s, const struct sockaddr* name, int namelen);
+/*
+成功时返回0，失败时返回SOCKET_ERROR
+*/
+```
+> 函数功能和Linux下的accept函数相同，调用其受理客户端连接
+---
+Linux中，关闭文件和套接字都是close函数；Windows中有专门的关闭套接字的函数。
+```c
+#include <winsock2.h>
+
+int closesocket(SOCKET s);
+/*
+成功时返回0，失败时返回SOCKET_ERROR
+*/
+```
+#### 1.4.2 Windows中的文件句柄和套接字句柄
+Linux中的文件描述符相当于Windows中的句柄，但是Windows中的文件句柄和套接字句柄存在区别。
+#### 1.4.3 创建基于windows的服务器和客户端
+**服务端示例**
+代码见 [hello_server_win.c](hello_server_win.c)
+
+编译运行：
+
+```shell
+gcc hello_server_win.c -o hServerWin
+./hServerWin 9190
+```
+
+**客户端示例**
+代码见 [hello_server_win.c](hello_server_win.c)  
+
+编译运行：
+```shell
+gcc hello_client_win.c -o hClientWin
+./hClientWin 127.0.0.1 9190
+```
+**输出结果**:
+
+```
+Message from server: Hello World!
+```
 
 ### 1.5 习题
 
