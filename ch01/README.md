@@ -378,6 +378,39 @@ gcc hello_client_win.c -o hClientWin
 ```
 Message from server: Hello World!
 ```
+#### 1.4.4 基于Windows的I/O函数
+Windows中严格区分文件I/O函数和套接字I/O函数，而Linux中则可以将套接字用文件I/O函数进行进行数据传输。  
+
+**Winsock数据传输函数**
+
+send函数
+```c
+#include<winsock2.h>
+
+int send(SOCKET s, const char * buf, int len, int flags);
+/*
+成功返回传输字节数，失败时返回SOCKET_ERROR
+ */
+```
+> s : 表示数据传输对象连接的套接字句柄值
+> buf ： 保存待传输数据的缓冲地址值
+> len ： 要传输的字节数
+> flags ： 传输数据时用到的多种选项值
+
+recv函数
+```c
+#include<winsock2.h>
+
+int recv(SOCKET s, const char * buf, int len, int flags);
+/*
+成功返回接收字节数（收到EOF时为0），失败时返回SOCKET_ERROR
+ */
+```
+> s : 表示数据接收对象连接的套接字句柄值
+> buf ： 保存接收的缓冲地址值
+> len ： 能够接收的最大字节数
+> flags ： 接收数据时用到的多种选项值
+
 
 ### 1.5 习题
 
@@ -393,7 +426,7 @@ Message from server: Hello World!
 
 3. Linux 中，对套接字数据进行 I/O 时可以直接使用文件 I/O 相关函数；而在 Windows 中则不可以。原因为何？
 
-   > 答：暂略。
+   > 答：因为Windows系统中严格区分文件句柄和套接字句柄，所以操作套接字和文件的I/O函数是不同的。
 
 4. 创建套接字后一般会给他分配地址，为什么？为了完成地址分配需要调用哪个函数？
 
@@ -401,7 +434,7 @@ Message from server: Hello World!
 
 5.  Linux 中的文件描述符与 Windows 的句柄实际上非常类似。请以套接字为对象说明它们的含义。
 
-   > 答：暂略。
+   > 答：创建套接字时调用的代码```socket (int, int, int);```返回值是一个无符号整型值。Windows系统中的文件句柄和Linux系统中的文件描述符是一样的，都使用了返回值作为套接字在系统中的描述。
 
 6. 底层 I/O 函数与 ANSI 标准定义的文件 I/O 函数有何区别？
 
