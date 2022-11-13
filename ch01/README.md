@@ -250,10 +250,22 @@ file descriptor 3: 16
 
 ### 1.3 基于 Windows 平台的实现
 在winsock基础上开发网络程序，需要做如下准备：
-1. 导入头文件windock2.h
+1. 导入头文件winsock2.h
 2. 链接ws2_32.lib库
 
-> 使用Clion在windows平台进行开发时，标准库中已经带有windock2.h头文件  
+> ~~使用Clion在windows平台进行开发时，标准库中已经带有winsock2.h头文件~~  
+> 虽然已经带有winsock2.h文件，但是仍然需要链接ws2_32.lib库  
+> Clion中直接在CMakeLists.txt文件中添加如下配置即可
+
+```cmake
+#导入本地下载的编译器中的标准库
+include_directories(D:/MinGW/include)
+link_directories(D:/MinGW/lib)
+#链接库
+link_libraries(ws2_32)
+#同时在add_executable()后添加如下配置
+target_link_libraries(TCP_IP_NetworkNote ws2_32)
+```
 
 **Winsock初始化**
 ```c
