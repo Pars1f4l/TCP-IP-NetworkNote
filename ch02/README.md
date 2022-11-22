@@ -99,8 +99,8 @@ int udp_socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 需要对第一章的代码做出修改，修改好的代码如下：
 
-- [tcp_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch02/tcp_client.c)
-- [tcp_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch02/tcp_server.c)
+- [tcp_client.c](tcp_client.c)
+- [tcp_server.c](tcp_server.c)
 
 编译：
 
@@ -127,7 +127,51 @@ Function read call count: 13
 
 ### 2.2 Windows 平台下的实现及验证
 
-暂略
+#### 2.2.1 Windows操作系统的socket函数
+```c
+#include <sys/socket.h>
+Socket socket(int af, int type, int protocol);
+/*
+成功时返回socket句柄，失败时返回INVALID_SOCKET
+af: 套接字中使用的协议族（Protocol Family）
+type: 套接字数据传输的类型信息
+protocol: 计算机间通信中使用的协议信息
+*/
+```
+> 返回值为Socket结构体，此结构体用来保存整数型套接字句柄值。  
+> 为保证以后的拓展性，所以使用Socket数据类型接收整数型数据。  
+> INVALID_SOCKET为提示错误的常数。
+
+#### 2.2.2 基于Windows的TCP套接字示例
+
+需要对第一章的代码做出修改，修改好的代码如下：
+
+- [tcp_client_win.c](tcp_client_win.c)
+- [tcp_server_win.c](tcp_server_win.c)
+
+编译：
+
+```shell
+gcc tcp_client_win.c -o hclient_win
+gcc tcp_server_win.c -o hserver_win
+```
+
+
+运行：
+
+```shell
+./hserver_win 9190
+./hclient_win 127.0.0.1 9190
+```
+
+结果：
+
+```
+Message from server : Hello World! 
+Function read call count: 13
+```
+
+从运行结果可以看出服务端发送了13字节的数据，客户端调用13次 read 函数进行读取。
 
 ### 2.3 习题
 
@@ -142,9 +186,9 @@ Function read call count: 13
 3. 下面那些是面向消息的套接字的特性？
 
    - **传输数据可能丢失**
-   - 没有数据边界（Boundary）
+   - ~~没~~ 有数据边界（Boundary）
    - **以快速传递为目标**
-   - 不限制每次传输数据大小
+   - ~~不~~ 限制每次传输数据大小
    - **与面向连接的套接字不同，不存在连接概念**
 
 4. 下列数据适合用哪类套接字进行传输？
