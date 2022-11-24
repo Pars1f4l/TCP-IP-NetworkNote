@@ -200,7 +200,7 @@ unsigned long ntohl(unsigned long);
 
 下面的代码是示例，说明以上函数调用过程：
 
-[endian_conv.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch03/endian_conv.c)
+[endian_conv.c](endian_conv.c)
 
 ```cpp
 #include <stdio.h>
@@ -256,7 +256,7 @@ in_addr_t inet_addr(const char *string);
 
 具体示例：
 
-[inet_addr.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch03/inet_addr.c)
+[inet_addr.c](inet_addr.c)
 
 ```c
 #include <stdio.h>
@@ -311,7 +311,7 @@ addr: 保存转换结果的 in_addr 结构体变量的地址值
 
 函数调用示例：
 
-[inet_aton.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch03/inet_aton.c)
+[inet_aton.c](inet_aton.c)
 
 ```c
 #include <stdio.h>
@@ -366,7 +366,7 @@ char *inet_ntoa(struct in_addr adr);
 
 示例：
 
-[inet_ntoa.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch03/inet_ntoa.c)
+[inet_ntoa.c](inet_ntoa.c)
 
 ```c
 #include <stdio.h>
@@ -421,10 +421,93 @@ addr.sin_family = AF_INET;                 //制定地址族
 addr.sin_addr.s_addr = inet_addr(serv_ip); //基于字符串的IP地址初始化
 addr.sin_port = htons(atoi(serv_port));    //基于字符串的IP地址端口号初始化
 ```
+#### 3.4.3 客户端地址初始化
+
+服务器端的准备工作由bind函数完成，而客户端则通过connect函数完成。  
+客户端声明sockaddr_in结构体，并初始化为要连接的服务器端套接字的IP和端口号，然后调用connect函数。
+
+#### 3.4.4 INADDR_ANY
+
+```c
+struct sockarr_in addr;
+char *serv_post = "9190";
+memset(&addr, 0, sizeof(addr));
+serv_addr.sin_family = AF_INET;
+serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+serv_addr.sin_port = htons(atoi(serv_port));
+```
+采用这种方式，可以自动获取运行服务器端的计算机IP地址。  
+如果像路由器这样拥有多个IP地址的多宿主计算机，只要端口号一致，就可以从不同的IP接受数据。因此多用于服务器端，客户端除非带有一部分服务器端功能，否则不会采用。
 
 ### 3.5 基于 Windows 的实现
 
-略
+#### 3.5.1 函数htons、htonl在Windows中的使用
+
+见代码 [endian_conv_win.c](endian_conv_win.c)
+
+运行结果：  
+```
+Host ordered port: 0x1234
+Network ordered port: 0x3412
+Host ordered address: 0x12345678
+Network ordered address: 0x78563412
+```
+> 程序多了库初始化的WSAStartup函数和winsock2.h头文件的#include语句。
+
+#### 3.5.2 函数inet_addr、inet_ntoa在Windows中的使用
+
+见代码 [inet_adrconv_win.c](inet_adrconv_win.c)
+
+运行结果：
+```
+Network ordered integer addr: 0x4e7cd47f
+Dotted-Decimal notation3 1.2.3.4
+```
+
+#### 3.5.3 WSAStringToAddress & WSAAddressToString
+
+> Winsock2中新增了两个转换函数，功能与inet_ntoa和inet_addr完全相同。  
+> 优点在于支持多种协议，在ipv4和ipv6中都适用，缺点是会降低兼容性。
+
+WSAStringToAddress函数
+```c
+#include <winsock2.h>
+
+INT WSAStringToAddress(
+        LPTSTR AddressString, INT AddressFamily, LPWSAPROTOCOL_INFO IpProtocolInfo, LPSOCKADDR IpAddress, LPINT IpAddressLength);
+/*
+ * 成功时返回0，失败时返回SOCKET_ERROR
+ * AddressString : 含有ip和端口号的字符串地址信息
+ * AddressFamily : 第一个参数中地址所属的地址族信息
+ * IpProtocolInfo : 设置协议提供者（Provider），默认为NULL
+ * IpAddress : 保存地址信息的结构体变量值
+ * IpAddressLength : 第四个参数中传递的结构体长度所在的变量地址值
+ * */
+
+```
+
+WSAAddressToString函数
+```c
+#include <winsock2.h>
+
+INT WSAAddressToString(
+        LPSOCKADDR IpsaAddress, DWORD dwAddressLength, LPWSAPROTOCOL_INFO IpProtocolInfo, LPSTR IpszAddressString, LPDWORD IpdwAddressStringLength);
+/*
+ * 成功时返回0，失败时返回SOCKET_ERROR
+ * IpsaAddress : 需要转换的地址信息结构体变量值
+ * dwAddressLength : 第一个参数中结构体的长度
+ * IpProtocolInfo : 设置协议提供者（Provider），默认为NULL
+ * IpszAddressString : 保存转换结果的字符串地址值    
+ * IpAddressLength : 第四个参数中存有地址信息的字符串长度
+ * */
+```
+
+示例见 [conv_addr_win.c](conv_addr_win.c)  
+
+运行结果：
+```
+Second conv result: 203.211.218.102:9190
+```
 
 ### 3.6 习题
 
@@ -480,7 +563,8 @@ addr.sin_port = htons(atoi(serv_port));    //基于字符串的IP地址端口号
 
 9. **大端序计算机希望把 4 字节整数型 12 传递到小端序计算机。请说出数据传输过程中发生的字节序变换过程。**
 
-   答：0x12->0x21
+   答：大端序->网络字节序->小端序  
+0x00 0x00 0x00 0x0c->0x00 0x00 0x00 0x0c->0x0c 0x00 0x00 0x00
 
 10. **怎样表示回送地址？其含义是什么？如果向会送地址处传输数据将会发生什么情况？**
 
