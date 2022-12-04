@@ -86,7 +86,7 @@ accept 函数受理连接请求队列中待处理的客户端连接请求。函�
 
 #### 4.2.4 回顾 Hello World 服务端
 
-- 代码：[hello_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch04/hello_server.c)
+- 代码：[hello_server.c](hello_server.c)
 
 重新整理一下代码的思路
 
@@ -124,7 +124,7 @@ addrlen: 第二个结构体参数 servaddr 变量的字节长度
 
 #### 4.2.6 回顾 Hello World 客户端
 
-- 代码：[hello_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch04/hello_client.c)
+- 代码：[hello_client.c](hello_client.c)
 
 重新理解这个程序：
 
@@ -208,7 +208,48 @@ client:
 
 ### 4.4 基于 Windows 的实现
 
-暂略
+#### 4.4.1 基于Windows的回声服务器端
+
+Windows端示例需要注意以下几点
+- 通过WSAStartup、WSACleanup函数初始化并清除套接字相关库
+- 把数据类型和变量名切换为Windows风格
+- 数据传输中用recv、send函数而非read、write函数
+- 关闭套接字时用closesock函数而非close函数
+
+代码：[echo_server_win.c](echo_server_win.c)  
+
+#### 4.4.2 基于Windows的回声客户端  
+
+代码：[echo_client_win.c](echo_client_win.c)  
+
+运行结果 ：echo_server_win.c  
+```
+.\echo_server_win.exe 9190
+Connected client 1
+Connected client 2 
+```
+> 服务器端处理完第一个客户端请求，正向第二个客户端提供服务
+
+运行结果：echo_client_win.c one
+```
+ .\echo_client_win.exe 127.0.0.1 9190
+Connected...........      
+Input message(Q to quit): I really
+Message from server: I really
+Input message(Q to quit): Q
+```
+
+运行结果：echo_client_win.c two
+```
+ .\echo_client_win.exe 127.0.0.1 9190
+Connected...........      
+Input message(Q to quit): 我真的
+Message from server: 我真的
+Input message(Q to quit): Q
+```
+> 第一段表示第一个客户端连接到回声服务器端，接受服务并终止连接；  
+> 第二段表示正在接收回声服务器的第二个客户端
+
 
 ### 4.5 习题
 
