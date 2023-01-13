@@ -74,8 +74,8 @@ howto: 传递断开方式信息
 
 下面的代码为编程简便，省略了大量错误处理代码。
 
-- [file_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch07/file_client.c)
-- [file_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch07/file_server.c)
+- [file_client.c](file_client.c)
+- [file_server.c](file_server.c)
 
 编译运行：
 
@@ -94,7 +94,28 @@ gcc file_server.c -o fserver
 
 ### 7.2 基于 Windows 的实现
 
-暂略
+Windows平台同样通过调用shutdown函数来实现半关闭，只是向其传输的参数名略有不同。
+```c
+#include <winsock2.h>
+int shutdown(SOCKET sock, int howto);
+/*
+成功时返回 0 ，失败时返回 SOCKET_ERROR
+sock: 需要断开套接字句柄
+howto: 传递断开方式信息
+*/
+```
+
+调用上述函数时，第二个参数决定断开连接的方式，其值如下所示：
+
+- `SD_RECEIVE` : 断开输入流
+- `SD_SEND` : 断开输出流
+- `SD_BOTH` : 同时断开 I/O 流  
+虽然变量名不同，但是值完全相同。依次为0，1，2.
+
+下面是Windows平台的代码
+
+- [file_client_win.c](file_client_win.c)
+- [file_server_win.c](file_server_win.c)
 
 ### 7.3 习题
 
