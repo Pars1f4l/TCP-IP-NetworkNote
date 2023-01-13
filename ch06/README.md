@@ -89,8 +89,8 @@ addrlen: 保存参数 from 的结构体变量长度的变量地址值。
 
 代码：
 
-- [uecho_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_client.c)
-- [uecho_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_server.c)
+- [uecho_client.c](uecho_client.c)
+- [uecho_server.c](uecho_server.c)
 
 编译运行：
 
@@ -123,8 +123,8 @@ UDP 程序中，调用 sendto 函数传输数据前应该完成对套接字的�
 
 相反，UDP 是具有数据边界的下一，传输中调用 I/O 函数的次数非常重要。因此，输入函数的调用次数和输出函数的调用次数应该完全一致，这样才能保证接收全部已经发送的数据。例如，调用 3 次输出函数发送的数据必须通过调用 3 次输入函数才能接收完。通过一个例子来进行验证：
 
-- [bound_host1.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/bound_host1.c)
-- [bound_host2.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/bound_host2.c)
+- [bound_host1.c](bound_host1.c)
+- [bound_host2.c](bound_host2.c)
 
 编译运行：
 
@@ -170,9 +170,9 @@ connect(sock, (struct sockaddr *)&adr, sizeof(adr));
 
 之后就与 TCP 套接字一致，每次调用 sendto 函数时只需传递信息数据。因为已经指定了收发对象，所以不仅可以使用 sendto、recvfrom 函数，还可以使用 write、read 函数进行通信。
 
-下面的例子把之前的 [uecho_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_client.c) 程序改成了基于已连接 UDP 的套接字的程序，因此可以结合 [uecho_server.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_server.c) 程序运行。代码如下：
+下面的例子把之前的 [uecho_client.c](uecho_client.c) 程序改成了基于已连接 UDP 的套接字的程序，因此可以结合 [uecho_server.c](uecho_server.c) 程序运行。代码如下：
 
-- [uecho_con_client.c](https://github.com/riba2534/TCP-IP-NetworkNote/blob/master/ch06/uecho_con_client.c)
+- [uecho_con_client.c](uecho_con_client.c)
 
 编译运行过程与上面一样，故省略。
 
@@ -180,7 +180,28 @@ connect(sock, (struct sockaddr *)&adr, sizeof(adr));
 
 ### 6.4 基于 Windows 的实现
 
-暂略
+首先是Windows平台下的sendto和readfrom函数。  
+> sendto函数
+```c
+#include <winsock2.h>
+
+int sendto(SOCKET s, const char * buf, int len, int flag, const struct sockaddr* to, int tolen)
+/*
+成功时返回传输的字节数，失败时返回SOCKET_ERROR
+*/
+```
+> recvfrom函数
+```c
+#include <winsock2.h>
+
+int recvfrom(SOCKET s, char * buf, int len, int flag, struct sockaddr* from, int fromlen)
+/*
+成功时返回传输的字节数，失败时返回SOCKET_ERROR
+*/
+```  
+Windows平台下的UDP回声服务器/客户端代码如下：
+[uecho_client_win.c](uecho_client_win.c)  
+[uecho_server_win.c](uecho_server_win.c) 
 
 ### 6.5 习题
 
