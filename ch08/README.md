@@ -134,8 +134,26 @@ gcc gethostbyaddr.c -o hostaddr
 
 ### 8.3 基于 Windows 的实现
 
-暂略
+Windows中的gethostbyname函数  
+```c
+#include <winsock2.h>
+struct hostent * gethostbyname(const char * name);
+/*
+成功时返回 hostent 结构体地址，失败时返回 NULL 指针
+*/
+```
+gethostbyaddr函数  
+```c
+#include <winsock2.h>
+struct hostent * gethostbyaddr(const char * addr, int len, int type);
+/*
+成功时返回 hostent 结构体地址，失败时返回 NULL 指针
+*/
+```
 
+下面的代码演示使用方法：  
+[gethostbyname_win.c](gethostbyname_win.c)  
+[gethostbyaddr_win.c](gethostbyaddr_win.c)
 ### 8.4 习题
 
 > 以下答案仅代表本人个人观点，可能不是正确答案。
@@ -144,9 +162,9 @@ gcc gethostbyaddr.c -o hostaddr
 
    答：字体加粗的表示正确答案。
 
-   1. **因为DNS从存在，故可以使用域名代替IP**
+   1. **因为DNS存在，故可以使用域名代替IP**
    2. DNS服务器实际上是路由器，因为路由器根据域名决定数据的路径
-   3. **所有域名信息并非集中与 1 台 DNS 服务器，但可以获取某一 DNS 服务器中未注册的所有地址**
+   3. **所有域名信息并非集中与 1 台 DNS 服务器，但可以获取某一 DNS 服务器中未注册的IP地址**
    4. DNS 服务器根据操作系统进行区分，Windows 下的 DNS 服务器和 Linux 下的 DNS 服务器是不同的。
 
 2. **阅读如下对话，并说明东秀的方案是否可行。（因为对话的字太多，用图代替）**
