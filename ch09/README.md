@@ -226,8 +226,41 @@ getsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void *)&opt_val, &opt_len);
 
 ### 9.4 基于 Windows 的实现
 
-暂略
+套接字可选项和操作系统无关，因此再Windows平台和Linux平台下无区别。  
+下面是getsockopt函数
 
+```c
+#include <winsock2.h>
+
+int getsockopt(SOCKET sock, int level, int optname, char *optval, int *optlen);
+/*
+成功时返回 0 ，失败时返回 SOCKET_ERROR
+sock: 用于查看选项套接字句柄
+level: 要查看的可选项协议层
+optname: 要查看的可选项名
+optval: 保存查看结果的缓冲地址值
+optlen: 向第四个参数传递的缓冲大小。调用函数后，该变量中保存通过第四个参数返回的可选项信息的字节数。
+*/
+```  
+可以看到，除了optval类型变成char指针外，与Linux中的getsocket函数相比并无太大的区别。  
+
+下面是setsockopt函数
+```c
+#include <winsock2.h>
+
+int setsockopt(SOCKET sock, int level, int optname, const char *optval, int *optlen);
+/*
+成功时返回 0 ，失败时返回 SOCKET_ERROR
+sock: 用于查看选项套接字句柄
+level: 要查看的可选项协议层
+optname: 要查看的可选项名
+optval: 保存查看结果的缓冲地址值
+optlen: 向第四个参数传递的缓冲大小。调用函数后，该变量中保存通过第四个参数返回的可选项信息的字节数。
+*/
+```  
+利用上述两个函数编写示例，将套接字I/O缓冲大小改成基于Windows的实现  
+
+- [buf_win.c](buf_win.c)
 ### 9.5 习题
 
 > 以下答案仅代表本人个人观点，可能不是正确答案。
