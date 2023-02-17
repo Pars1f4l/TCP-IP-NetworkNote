@@ -178,7 +178,42 @@ gcc echo_selectserv.c -o selserv
 
 ### 12.3 基于 Windows 的实现
 
-暂略
+#### 12.3.1 在Windows平台调用select函数  
+Windows同样提供select函数，而且所有的参数与select函数完全相同。只不过Windows平台select函数的第一个参数是为了保持与UNIX系列操作系统的兼容性而添加的。
+
+下面是 select 函数的定义：
+
+```c
+#include <winsock2.h>
+
+int select(int nfds, fd_set *readfds, fd_set *writefds,
+           fd_set *exceptfds, const struct timeval *timeout);
+/*
+成功时返回大于 0 的值，失败时返回 -1
+返回值、参数的顺序和含义与之前linux中的select函数完全相同
+*/
+```
+下面是timeval结构体定义：
+```c
+typedef struct timeval{
+    long tv_sec;    //seconds;
+    long tv_usec;   //microseconds;
+} TIMEVAL; 
+```
+Windows的fd_set结构体定义：
+```c
+typedef struct fd_set{
+    u_int fd_count;    
+    SOCKET fd_array[FD_SETSIZE];   
+} TIMEVAL; 
+```
+可以看到Windows的fd_set由成员fd_count和fd_array构成，fd_count用于套接字句柄数，fd_array用于保存套接字句柄。  
+这是由于Windows的套接字句柄并非从0开始，而且句柄的整数值之间并无规律可循。但处理fd_set结构体的4个宏的名称、功能以及使用方法与Linux完全相同。
+
+#### 12.3.2 基于Windows实现I/O复用服务器端
+
+代码示例：  
+[echo_selectserv_win.c](echo_selectserv_win.c)
 
 ### 12.4 习题
 
@@ -198,8 +233,8 @@ gcc echo_selectserv.c -o selserv
 
    答：以下加粗的为正确的描述。
 
-   1. 调用 select 函数前需要集中 I/O 监视对象的文件描述符
-   2. **若已通过 select 函数注册为监视对象，则后续调用 select 函数时无需重复注册**
+   1. **调用 select 函数前需要集中 I/O 监视对象的文件描述符**
+   2. 若已通过 select 函数注册为监视对象，则后续调用 select 函数时无需重复注册
    3. 复用服务器端同一时间只能服务于 1 个客户端，因此，需要服务的客户端接入服务器端后只能等待
    4. **与多线程服务端不同，基于 select 的复用服务器只需要 1 个进程。因此，可以减少因创建多进程产生的服务器端的负担**。
 
