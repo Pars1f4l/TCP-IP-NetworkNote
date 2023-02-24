@@ -143,7 +143,11 @@ gcc news_sender_brd.c -o sender
 
 ### 14.3 基于 Windows 的实现
 
-暂略
+在Windows平台上无需改动上述示例，只是在多播中，头文件稍有区别。  
+[news_sender_win.c](news_sender_win.c)  
+上述示例的第5行增加了头文件ws2tcpip.h的声明，该头文件中定义了第34行插入的IP_MULTICAST_TTL选项。接下来给出的Receiver示例中同样需要该头文件声明，因为其中定义了ip_mreq结构体。  
+[news_reveiver_win.c](news_receiver_win.c)  
+运行结果和之前示例相同。
 
 ### 14.4 习题
 
