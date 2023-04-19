@@ -175,5 +175,28 @@ BOOL GetQueuedCompletionStatus(
 
 ### 23.3 习题
 
+1. 完成端口对象将分配多个线程用于处理I/O。如何创建这些线程？如何分配？青葱源代码级别进行说明。
+   Completion Port对象所分摊的线程由程序员创建。这些线程为了确认I/O的完成会调用GetQueuedCompletionStatus函数。虽然任何线程都能调用GetQueuedCompletionStatus函数，但实际得到I/O完成信息的线程数不会超过调用CreateIoCompletionPort函数时指定的最大线程数。
 
+2. CreateIoCompletionPort函数与其他函数不同，提供2种功能。请问是哪2种？
+   Completion Port对象的产生，CP对象与套接字进行连接
 
+3. 完成端口对象和套接字之间的连接意味着什么？如何连接？
+   首先通过CreateIoCompletionPort生成CP对象。之后再次使用CreateIoCompletionPort函数将CP对象与套接字进行连接。
+
+4. 下列关于IOCP的说法错误的是？
+    加粗的是正确的
+    a. **以最少的线程处理多数I/O的结构，因此可以减少上下文切换引起的性能低下。**
+    b. **执行I/O的过程中，服务器端无需等待I/O完成，可以执行其他任务，故能提高CPU效率**
+    c. I/O完成时会自动调用相关Completion Routine函数，因此没必要调用特定函数以等待I/O完成
+    d. 除Windows外，其他操作系统同样支持IOCP，所以这种模型具有良好的移植性。
+
+5. 判断下列关于IOCP中选择合理线程数的方法是否合适
+
+    a. **通常会选择与CPU数同样数量的线程**
+    b. **最好在条件允许的范围内通过实验决定线程数**
+    c. 分配的线程数越多越好。例如，1个线程就足够的情况下应该多分配几个，比如创建3个线程分配给IOCP
+
+6. 利用本章的IOCP模型实现聊天服务器端，该聊天服务器端应当结合第20章的聊天客户端chat_clnt_win.c正常运行。
+
+    见代码[IOCPServ_win.c](homework/IOCPServ_win.c)
